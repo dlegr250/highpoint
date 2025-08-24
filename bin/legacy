@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+
+require_relative "../config/environment"
+require "optparse"
+
+USAGE = <<~TXT
+Usage:
+  bin/legacy load <csv_path>
+  bin/legacy fetch [--all]
+  bin/legacy transform
+  bin/legacy package
+  bin/legacy push_s3 <raw|transformed|packaged>
+TXT
+
+abort(USAGE) if ARGV.empty?
+cmd = ARGV.shift
+
+case cmd
+when "load"
+  path = ARGV.shift
+  path || abort(USAGE)
+  Legacy.load_file!(path: path, system: :legacy)
+when "fetch"
+  only_missing = !ARGV.delete("--all")
+  Legacy.fetch!(only_missing: only_missing)
+when "transform"
+  Legacy.transform!
+when "package"
+  Legacy.package!
+when "push_s3"
+  stage = ARGV.shift
+  stage || abort(USAGE)
+  
+  bucket = ARGV.shift
+  bucket || abort(USAGE)
+  Legacy.push_s3!(stage: stage)
+else
+  abort(USAGE)
+end
