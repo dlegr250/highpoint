@@ -1,16 +1,14 @@
 class Capnet
-  def self.load_csv!(path)
-    CSV.foreach(path, headers: true) do |row|
-      Document.find_or_create_by!(system: :capnet, doc_num: row.fetch("doc_num")) do |d|
-        d.source_url = row.fetch("url")
-      end
-    end
-  end
+  include Ingestable
 
   def self.fetch!(only_missing: true)
-    scope = Document.capnet
-    scope = scope.where.missing(:resources) if only_missing
-    scope.find_each { |d| d.enqueue_fetch!(queue: :capnet) }
+    documents = if only_missing
+      Document.capnet.where.missing(:resources)
+    else
+      Document.capnet
+    end
+
+    documents.find_each { |d| d.enqueue_fetch!(queue: :capnet) }
   end
 
   def self.transform!
@@ -32,7 +30,7 @@ class Capnet
   end
 
   def self.ready_to_transform_ids
-    Document.capnet.includes(:xml2).select(&:xml2_ok?).map!(&:id)
+    Document.capnet.includes(:pubs12).select(&:pubs12_ok?).map!(&:id)
   end
 
   def self.ready_to_package_ids
