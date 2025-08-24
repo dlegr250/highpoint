@@ -9,16 +9,17 @@ Usage:
   bin/capnet fetch [--all]
   bin/capnet transform
   bin/capnet package
-  bin/capnet push_s3 <raw|transformed|packaged> <bucket> [prefix]
+  bin/capnet push_s3 <raw|transformed|packaged>
 TXT
 
-abort USAGE if ARGV.empty?
+abort(USAGE) if ARGV.empty?
 cmd = ARGV.shift
 
 case cmd
 when "load"
-  path = ARGV.shift or abort USAGE
-  Capnet.load_csv!(path)
+  path = ARGV.shift
+  path || abort(USAGE)
+  Capnet.load_file!(path: path, system: :capnet)
 when "fetch"
   only_missing = !ARGV.delete("--all")
   Capnet.fetch!(only_missing: only_missing)
@@ -27,10 +28,12 @@ when "transform"
 when "package"
   Capnet.package!
 when "push_s3"
-  stage = ARGV.shift or abort USAGE
-  bucket = ARGV.shift or abort USAGE
-  prefix = ARGV.shift
-  Capnet.push_s3!(stage: stage, bucket: bucket, prefix: (prefix || "highpoint/capnet"))
+  stage = ARGV.shift
+  stage || abort(USAGE)
+  
+  bucket = ARGV.shift
+  bucket || abort(USAGE)
+  Capnet.push_s3!(stage: stage)
 else
-  abort USAGE
+  abort(USAGE)
 end

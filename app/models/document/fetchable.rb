@@ -11,7 +11,9 @@ module Document::Fetchable
     ensure_core_resources!
 
     # Download XMLs and PDF first
-    [pubs12, pubs2, pdf].compact.each { _1.download_to!(raw_path_for(_1)) }
+    [pubs12, pubs2, pdf].compact.each do |resource|
+      resource.download_to!(raw_path_for(resource))
+    end
 
     chosen_xml = pubs12_ok? ? pubs12 : pubs2
     if chosen_xml&.ok?
@@ -25,21 +27,17 @@ module Document::Fetchable
   end
 
   def ensure_core_resources!
-    build_resource!(:pubs12, pubs12_url) unless pubs12
-    build_resource!(:pubs2, pubs2_url) unless pubs2
-    build_resource!(:pdf, pdf_url) unless pdf
+    resources.create!(kind: :pubs12, url: pubs12_url) unless pubs12
+    resources.create!(kind: :pubs2, url: pubs2_url) unless pubs2
+    resources.create!(kind: :pdf, url: pdf_url) unless pdf
   end
 
   def ensure_image_resources!(urls)
     existing = images.pluck(:url).to_set
-    urls.each do |u|
-      next if existing.include?(u)
-      resources.build(kind: :image, url: u).save!
+    urls.each do |url|
+      next if existing.include?(url)
+      resources.create!(kind: :image, url: url)
     end
-  end
-
-  def build_resource!(kind, url)
-    resources.build(kind: kind, url: url).save!
   end
 
   def extract_image_urls(xml_path)
