@@ -13,30 +13,26 @@ class Resource < ApplicationRecord
 
   def download_to!(dest_path)
     FileUtils.mkdir_p(File.dirname(dest_path))
-    tmp = Pathname(dest_path.to_s + ".tmp")
 
     begin
-      File.open(tmp, "wb") do |io|
-        resp = HttpClient.client.get(url, response_body_io: io)
-        self.http_status = resp.status
-      end
+      response = HttpClient.get(url)
 
-      if http_status == 200
-        FileUtils.mv(tmp, dest_path)
+      if response.http_status == 200
+        File.binwrite(dest_path, response.body)
+        self.http_status = response.status
         self.file_path = dest_path.to_s
         self.status = :ok
         save!
       else
         self.status = :failed
-        self.error_message = "HTTP #{http_status}"
+        self.http_status = response.status
+        self.error_message = response&.body.to_s
         save!
-        FileUtils.rm_f(tmp)
       end
     rescue => e
       self.status = :failed
       self.error_message = "#{e.class}: #{e.message}"
       save!
-      FileUtils.rm_f(tmp)
     end
 
     self

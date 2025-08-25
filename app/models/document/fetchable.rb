@@ -1,8 +1,8 @@
 module Document::Fetchable
   include ActiveSupport::Concern
 
-  def enqueue_fetch!(queue: system.to_sym)
-    FetchDocumentJob.set(queue: queue).perform_later(id)
+  def enqueue_fetch!
+    FetchDocumentJob.perform_later(id)
   end
 
   def fetch_resources!

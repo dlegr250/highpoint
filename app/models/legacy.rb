@@ -8,7 +8,7 @@ class Legacy
       Document.legacy
     end
 
-    documents.find_each { |d| d.enqueue_fetch!(queue: :legacy) }
+    documents.find_each { |d| d.enqueue_fetch! }
   end
 
   def self.transform!

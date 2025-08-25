@@ -1,24 +1,41 @@
+```
+rails new highpoint -d sqlite3 --skip-docker --skip-action-mailer --skip-action-mailbox --skip-action-text --skip-active-storage --skip-action-cable --skip-asset-pipeline --skip-javascript --skip-hotwire --skip-jbuilder --skip-test --skip-system-test --skip-bootsnap --skip-dev-gems --skip-thruster --skip-rubocop --skip-brakeman --skip-ci --skip-kamal --no-devcontainer
+```
+
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+### TODO
+- Copy:
+  - Gemfile (with proper Ruby/Rails versions)
+  - bin/legacy
+  - bin/capnet
+  - app/jobs/fetch_document_job.rb
+  - app/models/*
+  - config/application.rb
+  - config/queue.yml
+- Update app/models/document/fetchable.rb extract logic
+- Update app/models/{legacy,capnet}.rb to push_s3! logic and keys
 
-Things you may want to cover:
+Code divided into Legacy and Capnet main classes to keep systems isolated.
 
-* Ruby version
+To display CLI usage:
 
-* System dependencies
+```
+bin/legacy
+# or
+bin/capnet
+```
 
-* Configuration
+These CLI binstubs will walk through usage instructions when executed
+without any args.
 
-* Database creation
+Workflow:
+- Load documents table from CSV/Excel spreadsheet file
+- Fetch data from system into local "raw" folders
+- Transform raw data into "transformed" folders
+- Package transformed data into "packaged" zips
+- Push zips to S3
+- Download S3 zips onto system environment
+- Ingest directly into system from the local server
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Currently each step is executed via the CLI manually, but the entire system could be automated easily once we have a few good test runs.

@@ -8,7 +8,7 @@ class Capnet
       Document.capnet
     end
 
-    documents.find_each { |d| d.enqueue_fetch!(queue: :capnet) }
+    documents.find_each { |d| d.enqueue_fetch! }
   end
 
   def self.transform!
