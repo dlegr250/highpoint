@@ -1,7 +1,7 @@
 ```
 rails new highpoint -d sqlite3 --skip-docker --skip-action-mailer --skip-action-mailbox --skip-action-text --skip-active-storage --skip-action-cable --skip-asset-pipeline --skip-javascript --skip-hotwire --skip-jbuilder --skip-test --skip-system-test --skip-bootsnap --skip-dev-gems --skip-thruster --skip-rubocop --skip-brakeman --skip-ci --skip-kamal --no-devcontainer
 ```
-
+test
 # README
 
 ### TODO
